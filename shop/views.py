@@ -5,7 +5,7 @@ import time
 from django.shortcuts import render
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Brand, Category, Product, Cart, Customer,Order, OrderItems
+from .models import Brand, Category, Product, Cart, Customer,Order
 
 def navbar_items(request):
     brand_items = Brand.objects.all()

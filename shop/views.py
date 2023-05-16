@@ -2,14 +2,10 @@
 from django.contrib.auth.decorators import login_required
 # to remove %20 in the product name
 import time
-from django.views.decorators.cache import never_cache
-
-from .models import Customer
 from django.shortcuts import render
-from django.contrib.auth.models import User
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Brand, Category, Product, Cart
+from .models import Brand, Category, Product, Cart, Customer,Order, OrderItems
 
 def navbar_items(request):
     brand_items = Brand.objects.all()
@@ -114,7 +110,6 @@ def redeem_check(code):
     redeem = [i for i in redeem_codes if i == code]
     discount=redeem_codes[redeem[0]]
     return discount
-@never_cache
 @login_required(login_url='login')
 def checkout(request):
     submitted = False
@@ -131,8 +126,12 @@ def checkout(request):
     #create a session so that data can be retrieved from
     session = request.session
     session.set_expiry(1800)
+    print("method",request.method, request.POST)
+
     if request.method == 'POST':
+        print('hello')
         if 'redeem' in request.POST:
+            print('hello')
             code = request.POST['code']
             discount = redeem_check(code)
 
@@ -143,7 +142,7 @@ def checkout(request):
                 total_price *= discount[0]
 
             context.update({'discount': discount[1], 'code': code, 'total_price': total_price})
-            
+            print({'discount': discount[1], 'code': code, 'total_price': total_price})
             #session objects
             session_data = {'discount': discount[1], 'code': code, 'total_price': total_price}
             session['checkout_data'] = session_data
@@ -183,8 +182,9 @@ def checkout(request):
         customer.save()
         submitted = True
         context.update({'customer': customer, 'submitted': submitted})
-
-        
+    if 'check' in request.POST:
+            order = Order.objects.create(user= request.user, customer = customer)
+            for i in order
 
     # Update context with navbar items and render checkout page
     context.update(session_data)

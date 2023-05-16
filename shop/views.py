@@ -184,7 +184,7 @@ def checkout(request):
         context.update({'customer': customer, 'submitted': submitted})
     if 'check' in request.POST:
             order = Order.objects.create(user= request.user, customer = customer)
-            for i in order
+            
 
     # Update context with navbar items and render checkout page
     context.update(session_data)

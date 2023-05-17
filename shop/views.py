@@ -5,7 +5,7 @@ import time
 from django.shortcuts import render
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Brand, Category, Product, Cart, Customer,Order
+from .models import Brand, Category, Product, Cart, Customer,Order,OrderItem
 
 def navbar_items(request):
     brand_items = Brand.objects.all()
@@ -117,6 +117,9 @@ def checkout(request):
     # Retrieve cart items for the current user
     cart = Cart.objects.filter(user=request.user)
 
+    #products
+    cart_products = [item.product for item in cart]
+    print(cart_products)
     # Compute total number of items and total price in cart
     total_items = sum([cart_item.quantity for cart_item in cart])
     total_price = sum([cart_item.product.price * cart_item.quantity for cart_item in cart])
@@ -183,9 +186,15 @@ def checkout(request):
         submitted = True
         context.update({'customer': customer, 'submitted': submitted})
     if 'check' in request.POST:
-            order = Order.objects.create(user= request.user, customer = customer)
-            
-
+                print('checking')
+                order_c = Order.objects.create(user= request.user, customer = customer)
+                for item in cart:
+                    order_item = OrderItem.objects.create(
+                        order  = order_c,
+                        product  =  item.product, 
+                        quantity = item.quantity 
+                    )
+                    print('created order item')
     # Update context with navbar items and render checkout page
     context.update(session_data)
     context.update(navbar_items(request))
@@ -196,13 +205,12 @@ def checkout(request):
 def order_view(request):
     session = request.session
     print(dict(session))
-    """order = Order.objects.filter(user = request.user)
-    order_items = Orderitem.objects.filter(order = order)
-    items = [item.cart for item in order_items]
-    total_items = sum([cart_item.quantity for cart_item in items])
-    total_price = sum([cart_item.product.price * cart_item.quantity for cart_item in items])
+    order = Order.objects.filter(user = request.user)
+    order_items = OrderItem.objects.all()
+    total_items = sum([item.quantity for item in order_items])
+    total_price = sum([item.product.price * item.quantity for item in order_items])
     context = {'cart': items, 'total_price': total_price,
-               'total_items': total_items,'orders':order_items}"""
+               'total_items': total_items,'orders':order_items}
     
     return render(request, 'orderpage.html')
 

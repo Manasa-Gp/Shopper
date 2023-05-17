@@ -49,9 +49,9 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer,on_delete=models.CASCADE, default=None)
     def __str__(self):
         return self.customer
-    
+ 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,default=None)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
     quantity = models.IntegerField(default=1)
     def __str__(self):

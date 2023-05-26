@@ -205,12 +205,15 @@ def checkout(request):
 def order_view(request):
     session = request.session
     print(dict(session))
-    order = Order.objects.filter(user = request.user)
-    order_items = OrderItem.objects.all()
+    order_ = Order.objects.filter(user = request.user)
+    order_items = OrderItem.objects.filter(order = order_[0])
+    print(order_items)
+    items = [item.product for item in order_items]
+    print(items)
     total_items = sum([item.quantity for item in order_items])
     total_price = sum([item.product.price * item.quantity for item in order_items])
-    context = {'cart': items, 'total_price': total_price,
+    context = {'items': items, 'total_price': total_price,
                'total_items': total_items,'orders':order_items}
-    
-    return render(request, 'orderpage.html')
+    context.update(navbar_items(request))
+    return render(request, 'orderpage.html',context)
 
